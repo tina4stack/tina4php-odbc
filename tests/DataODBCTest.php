@@ -43,10 +43,20 @@ class DataODBCTest extends TestCase
     {
         $error = $this->DBA->exec("drop table if exists testing");
 
-        $error = $this->DBA->exec("create table testing(id integer default 0, primary key(id)");
+        $error = $this->DBA->exec("create table testing(id integer default 0, primary key(id))");
 
-        print_r ($error);
         $exists = $this->DBA->tableExists("testing");
         $this->assertEquals(true, $exists, "Not working false table check");
+    }
+
+    final function testRead(): void
+    {
+        $this->DBA->exec("insert into testing (id) values (?)", 1);
+
+        $this->DBA->exec("insert into testing (id) values (2)");
+
+        $records = $this->DBA->fetch("select * from testing")->asArray();
+
+        $this->assertEquals(2, count($records), "Records were not 2");
     }
 }

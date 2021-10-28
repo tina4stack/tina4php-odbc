@@ -64,12 +64,12 @@ class DataODBC implements \Tina4\DataBase
         $error = $this->error();
 
         if (!empty($preparedQuery) && $error->getError()["errorCode"] === 0) {
-            $params[0] = $preparedQuery;
+            unset($params[0]);
 
-            if ( count( $params ) !== 1 ) {
-                odbc_execute( ...$params );
+            if ( count( $params ) > 0 ) {
+                odbc_execute($preparedQuery, $params); //a,d,v
             } else {
-                odbc_execute( $params[0] );
+                odbc_execute( $preparedQuery );
             }
 
             $error = $this->error();
@@ -81,16 +81,16 @@ class DataODBC implements \Tina4\DataBase
     /**
      * @return string
      */
-    public function getLastId(): string
+    final public function getLastId(): string
     {
-        // TODO: Implement getLastId() method.
+        return "";
     }
 
     /**
      * @param string|string $tableName
      * @return bool
      */
-    public function tableExists(string $tableName): bool
+    final public function tableExists(string $tableName): bool
     {
         $data = odbc_tables($this->dbh, null, null, $tableName);
         $database = [];
@@ -108,16 +108,46 @@ class DataODBC implements \Tina4\DataBase
      * @param array $fieldMapping
      * @return \Tina4\DataResult|null
      */
-    public function fetch(string $sql = "", int $noOfRecords = 10, int $offSet = 0, array $fieldMapping = []): ?\Tina4\DataResult
+    final public function fetch(string $sql = "", int $noOfRecords = 10, int $offSet = 0, array $fieldMapping = []): ?\Tina4\DataResult
     {
-        // TODO: Implement fetch() method.
+        $countRecords = odbc_exec($this->dbh, "select count(*) as count from (" . $sql . ") t");
+        $countRecords = odbc_fetch_array($countRecords)["count"];
+        $sql .= " limit {$offSet},{$noOfRecords}";
+
+        $recordCursor = odbc_exec($this->dbh, $sql);
+        $records = [];
+        if (!empty($recordCursor)) {
+            while ($recordArray = odbc_fetch_array($recordCursor)) {
+                if (!empty($recordArray)) {
+                    $records[] = (new DataRecord($recordArray, $fieldMapping, $this->getDefaultDatabaseDateFormat(), $this->dateFormat));
+                }
+            }
+        }
+
+        if (!empty($records)) {
+            //populate the fields
+            $fid = 1;
+            $fields = [];
+            foreach ($records[0] as $field => $value) {
+                $fields[] = (new DataField($fid, odbc_field_name($recordCursor, $fid), odbc_field_name($recordCursor, $fid), odbc_field_type($recordCursor, $fid)));
+                $fid++;
+            }
+        } else {
+            $records = null;
+            $fields = null;
+        }
+
+
+        $error = $this->error();
+
+        return (new DataResult($records, $fields, $countRecords, $offSet, $error));
     }
 
     /**
      * @param null $transactionId
      * @return mixed
      */
-    public function commit($transactionId = null)
+    final public function commit($transactionId = null)
     {
         return odbc_commit($this->dbh);
     }
@@ -126,7 +156,7 @@ class DataODBC implements \Tina4\DataBase
      * @param null $transactionId
      * @return mixed
      */
-    public function rollback($transactionId = null)
+    final public function rollback($transactionId = null)
     {
         return odbc_rollback($this->dbh);
     }
@@ -134,37 +164,38 @@ class DataODBC implements \Tina4\DataBase
     /**
      * @param bool|bool $onState
      */
-    public function autoCommit(bool $onState = true): void
+    final public function autoCommit(bool $onState = true): void
     {
-        // TODO: Implement autoCommit() method.
+        odbc_autocommit($this->dbh, $onState);
     }
 
     /**
      * @return string
      */
-    public function startTransaction()
+    final public function startTransaction()
     {
-        // TODO: Implement startTransaction() method.
+        return "Resource id #0";
     }
 
     /**
      * @return bool
      */
-    public function error()
+    final public function error()
     {
-        $errorMessage = odbc_error($this->dbh);
+        $errorCode = odbc_error($this->dbh);
 
-        if (!$errorMessage) {
+        if (!$errorCode) {
             return (new DataError(0, "None"));
         } else {
-            return (new DataError(9999, $errorMessage));
+            $errorMessage = odbc_errormsg($this->dbh);
+            return (new DataError($errorCode, $errorMessage));
         }
     }
 
     /**
      * @return array|mixed
      */
-    public function getDatabase(): array
+    final public function getDatabase(): array
     {
         $data = odbc_tables($this->dbh);
         $database = [];
@@ -198,7 +229,7 @@ class DataODBC implements \Tina4\DataBase
     /**
      * @return string
      */
-    public function getDefaultDatabaseDateFormat(): string
+    final public function getDefaultDatabaseDateFormat(): string
     {
         return "Y-m-d";
     }
@@ -206,7 +237,7 @@ class DataODBC implements \Tina4\DataBase
     /**
      * @return int|null
      */
-    public function getDefaultDatabasePort(): ?int
+    final public function getDefaultDatabasePort(): ?int
     {
         return null; //Depends on the ODBC driver
     }
@@ -216,15 +247,15 @@ class DataODBC implements \Tina4\DataBase
      * @param int|int $fieldIndex
      * @return string|mixed
      */
-    public function getQueryParam(string $fieldName, int $fieldIndex): string
+    final public function getQueryParam(string $fieldName, int $fieldIndex): string
     {
-        // TODO: Implement getQueryParam() method.
+       return "?";
     }
 
     /**
      * @return bool
      */
-    public function isNoSQL(): bool
+    final public function isNoSQL(): bool
     {
         return false;
     }
