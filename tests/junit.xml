@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests" tests="4" assertions="4" errors="1" warnings="0" failures="0" skipped="0" time="1.121355">
+    <testsuite name="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" tests="4" assertions="4" errors="1" warnings="0" failures="0" skipped="0" time="1.121355">
+      <testcase name="testOpen" class="DataODBCTest" classname="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" line="23" assertions="1" time="0.151209"/>
+      <testcase name="testGetDatabase" class="DataODBCTest" classname="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" line="28" assertions="1" time="0.676091"/>
+      <testcase name="testTableExists" class="DataODBCTest" classname="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" line="34" assertions="2" time="0.021928"/>
+      <testcase name="testDropCreateTable" class="DataODBCTest" classname="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" line="42" assertions="0" time="0.272127">
+        <error type="PHPUnit\Framework\Error\Warning">DataODBCTest::testDropCreateTable
+odbc_execute(): SQL error: [, SQL state H in SQLExecute
+
+/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/Tina4/DataODBC.php:72
+/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php:46</error>
+      </testcase>
+    </testsuite>
+  </testsuite>
+</testsuites>
