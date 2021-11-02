@@ -7,8 +7,6 @@
 
 namespace Tina4;
 
-use Tina4\DataBaseCore;
-
 class DataODBC implements \Tina4\DataBase
 {
     use DataBaseCore;
@@ -110,9 +108,13 @@ class DataODBC implements \Tina4\DataBase
      */
     final public function fetch(string $sql = "", int $noOfRecords = 10, int $offSet = 0, array $fieldMapping = []): ?\Tina4\DataResult
     {
-        $countRecords = odbc_exec($this->dbh, "select count(*) as count from (" . $sql . ") t");
-        $countRecords = odbc_fetch_array($countRecords)["count"];
-        $sql .= " limit {$offSet},{$noOfRecords}";
+        if (stripos($sql, "execute") === false) {
+            $countRecords = odbc_exec($this->dbh, "select count(*) as count from (" . $sql . ") t");
+            $countRecords = odbc_fetch_array($countRecords)["count"];
+            $sql .= " limit {$offSet},{$noOfRecords}";
+        } else {
+            $countRecords = 1;
+        }
 
         $recordCursor = odbc_exec($this->dbh, $sql);
         $records = [];
@@ -249,7 +251,7 @@ class DataODBC implements \Tina4\DataBase
      */
     final public function getQueryParam(string $fieldName, int $fieldIndex): string
     {
-       return "?";
+        return "?";
     }
 
     /**
