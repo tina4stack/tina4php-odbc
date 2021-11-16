@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests" tests="5" assertions="6" errors="0" warnings="0" failures="0" skipped="0" time="0.294057">
-    <testsuite name="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" tests="5" assertions="6" errors="0" warnings="0" failures="0" skipped="0" time="0.294057">
-      <testcase name="testOpen" class="DataODBCTest" classname="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" line="23" assertions="1" time="0.171113"/>
-      <testcase name="testTableExists" class="DataODBCTest" classname="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" line="30" assertions="2" time="0.017249"/>
-      <testcase name="testDropCreateTable" class="DataODBCTest" classname="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" line="38" assertions="1" time="0.065304"/>
-      <testcase name="testRead" class="DataODBCTest" classname="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" line="48" assertions="1" time="0.022046"/>
-      <testcase name="testGetDatabase" class="DataODBCTest" classname="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" line="59" assertions="1" time="0.018345"/>
+  <testsuite name="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests" tests="5" assertions="6" errors="0" warnings="0" failures="0" skipped="0" time="0.317025">
+    <testsuite name="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" tests="5" assertions="6" errors="0" warnings="0" failures="0" skipped="0" time="0.317025">
+      <testcase name="testOpen" class="DataODBCTest" classname="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" line="23" assertions="1" time="0.185735"/>
+      <testcase name="testTableExists" class="DataODBCTest" classname="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" line="30" assertions="2" time="0.019423"/>
+      <testcase name="testDropCreateTable" class="DataODBCTest" classname="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" line="38" assertions="1" time="0.071031"/>
+      <testcase name="testRead" class="DataODBCTest" classname="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" line="48" assertions="1" time="0.020066"/>
+      <testcase name="testGetDatabase" class="DataODBCTest" classname="DataODBCTest" file="/Users/andrevanzuydam/IdeaProjects/tina4php-odbc/tests/DataODBCTest.php" line="59" assertions="1" time="0.020770"/>
     </testsuite>
   </testsuite>
 </testsuites>

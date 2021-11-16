@@ -7,6 +7,9 @@
 
 namespace Tina4;
 
+/**
+ * Gets the metadata from an ODBC connection
+ */
 class ODBCMetaData extends DataConnection implements DataBaseMetaData
 {
 
