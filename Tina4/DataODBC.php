@@ -7,6 +7,9 @@
 
 namespace Tina4;
 
+/**
+ * ODBC driver for Tina4
+ */
 class DataODBC implements \Tina4\DataBase
 {
     use DataBaseCore;
@@ -38,7 +41,15 @@ class DataODBC implements \Tina4\DataBase
      */
     public function open()
     {
-        $this->dbh = odbc_connect($this->databaseName, $this->username, $this->password,SQL_CUR_USE_DRIVER);
+        if (!function_exists("odbc_connect")) {
+            throw new \Exception("ODBC extension for PHP needs to be installed");
+        }
+
+        $this->dbh = (new ODBCConnection(
+            $this->databaseName,
+            $this->username,
+            $this->password
+        ))->getConnection();
     }
 
     /**
@@ -57,23 +68,7 @@ class DataODBC implements \Tina4\DataBase
         $params = $this->parseParams(func_get_args());
         $params = $params["params"];
 
-        $preparedQuery =  odbc_prepare($this->dbh, $params[0]);
-
-        $error = $this->error();
-
-        if (!empty($preparedQuery) && $error->getError()["errorCode"] === 0) {
-            unset($params[0]);
-
-            if ( count( $params ) > 0 ) {
-                odbc_execute($preparedQuery, $params); //a,d,v
-            } else {
-                odbc_execute( $preparedQuery );
-            }
-
-            $error = $this->error();
-        }
-
-        return $error;
+        return (new ODBCExec($this))->exec($params, null);
     }
 
     /**
@@ -100,49 +95,15 @@ class DataODBC implements \Tina4\DataBase
     }
 
     /**
-     * @param string|string $sql
-     * @param int|int $noOfRecords
-     * @param int|int $offSet
+     * @param string $sql
+     * @param int $noOfRecords
+     * @param int $offSet
      * @param array $fieldMapping
-     * @return \Tina4\DataResult|null
+     * @return DataResult|null
      */
-    final public function fetch(string $sql = "", int $noOfRecords = 10, int $offSet = 0, array $fieldMapping = []): ?\Tina4\DataResult
+    final public function fetch($sql = "", int $noOfRecords = 10, int $offSet = 0, array $fieldMapping = []): ?DataResult
     {
-        if (stripos($sql, "execute") === false) {
-            $countRecords = odbc_exec($this->dbh, "select count(*) as count from (" . $sql . ") t");
-            $countRecords = odbc_fetch_array($countRecords)["count"];
-            $sql .= " limit {$offSet},{$noOfRecords}";
-        } else {
-            $countRecords = 1;
-        }
-
-        $recordCursor = odbc_exec($this->dbh, $sql);
-        $records = [];
-        if (!empty($recordCursor)) {
-            while ($recordArray = odbc_fetch_array($recordCursor)) {
-                if (!empty($recordArray)) {
-                    $records[] = (new DataRecord($recordArray, $fieldMapping, $this->getDefaultDatabaseDateFormat(), $this->dateFormat));
-                }
-            }
-        }
-
-        if (!empty($records)) {
-            //populate the fields
-            $fid = 1;
-            $fields = [];
-            foreach ($records[0] as $field => $value) {
-                $fields[] = (new DataField($fid, odbc_field_name($recordCursor, $fid), odbc_field_name($recordCursor, $fid), odbc_field_type($recordCursor, $fid)));
-                $fid++;
-            }
-        } else {
-            $records = null;
-            $fields = null;
-        }
-
-
-        $error = $this->error();
-
-        return (new DataResult($records, $fields, $countRecords, $offSet, $error));
+        return (new ODBCQuery($this))->query($sql, $noOfRecords, $offSet, $fieldMapping);
     }
 
     /**
@@ -195,37 +156,18 @@ class DataODBC implements \Tina4\DataBase
     }
 
     /**
-     * @return array|mixed
+     * Gets the metadata
+     * @return array
      */
     final public function getDatabase(): array
     {
-        $data = odbc_tables($this->dbh);
-        $database = [];
-        while ($table = odbc_fetch_array($data)) {
-            $fieldData = odbc_exec($this->dbh, "select * from `{$table["TABLE_NAME"]}` where 1 = 2");
-            $ncols = odbc_num_fields($fieldData);
-            $fields = [];
-            for ($n=1; $n<=$ncols; $n++) {
-                $fields[$n-1] = odbc_field_name($fieldData, $n);
-            }
-
-            $columns = odbc_columns($this->dbh, "%", '%', $table["TABLE_NAME"], '%');
-            $tid = 0;
-
-            while (($row = odbc_fetch_array($columns))) {
-                $database[trim($table["TABLE_NAME"])][$tid]["column"] = $fields[$tid];
-                $database[trim($table["TABLE_NAME"])][$tid]["field"] = strtolower($fields[$tid]);
-                $database[trim($table["TABLE_NAME"])][$tid]["description"] = "";
-                $database[trim($table["TABLE_NAME"])][$tid]["type"] = $row["SQL_NO_NULLS"];
-                $database[trim($table["TABLE_NAME"])][$tid]["length"] = $row["LENGTH"];
-                $database[trim($table["TABLE_NAME"])][$tid]["precision"] =  $row["PRECISION"];
-                $database[trim($table["TABLE_NAME"])][$tid]["default"] = "-";
-                $database[trim($table["TABLE_NAME"])][$tid]["notnull"] = "-";
-                $database[trim($table["TABLE_NAME"])][$tid]["pk"] = "-";
-                $tid++;
-            }
+        if (!empty($this->databaseMetaData)) {
+            return $this->databaseMetaData;
         }
-        return $database;
+
+        $this->databaseMetaData = (new ODBCMetaData($this))->getDatabaseMetaData();
+
+        return $this->databaseMetaData;
     }
 
     /**
@@ -247,7 +189,7 @@ class DataODBC implements \Tina4\DataBase
     /**
      * @param string|string $fieldName
      * @param int|int $fieldIndex
-     * @return string|mixed
+     * @return string
      */
     final public function getQueryParam(string $fieldName, int $fieldIndex): string
     {

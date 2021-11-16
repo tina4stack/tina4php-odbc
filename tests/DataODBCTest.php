@@ -16,7 +16,7 @@ class DataODBCTest extends TestCase
 
     final function setUp(): void
     {
-        $this->connectionString = "DRIVER={/Library/ODBC/Actual Open Source Databases.bundle/Contents/MacOS/atopnsrc.so};SERVER=localhost;PORT=33060;DATABASE=mysql";
+        $this->connectionString = "DRIVER={/Library/ODBC/Actual Open Source Databases.bundle/Contents/MacOS/atopnsrc.so};SERVER=localhost;PORT=33306;DATABASE=testing";
         $this->DBA = new \Tina4\DataODBC($this->connectionString, "root", "pass1234");
     }
 
@@ -25,11 +25,7 @@ class DataODBCTest extends TestCase
         $this->assertNotEmpty($this->DBA);
     }
 
-    final function testGetDatabase(): void
-    {
-        $database = $this->DBA->getDatabase();
-        $this->assertArrayHasKey("user", $database);
-    }
+
 
     final function testTableExists() : void
     {
@@ -57,6 +53,12 @@ class DataODBCTest extends TestCase
 
         $records = $this->DBA->fetch("select * from testing")->asArray();
 
-        $this->assertEquals(2, count($records), "Records were not 2");
+        $this->assertCount(2, $records, "Records were not 2");
+    }
+
+    final function testGetDatabase(): void
+    {
+        $database = $this->DBA->getDatabase();
+        $this->assertArrayHasKey("testing", $database);
     }
 }
