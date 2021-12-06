@@ -23,6 +23,6 @@
     },
     "require": {
         "tina4stack/tina4php-database": "^1.0",
-        "ext-odbc" : "^7.3"
+        "ext-odbc" : "*"
     }
 }

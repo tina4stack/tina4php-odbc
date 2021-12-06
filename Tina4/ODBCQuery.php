@@ -58,6 +58,7 @@ class ODBCQuery extends DataConnection implements DataBaseQuery
         } else {
             $records = null;
             $fields = null;
+            $countRecords = 0;
         }
 
 
