@@ -10,7 +10,7 @@ namespace Tina4;
 /**
  * ODBC driver for Tina4
  */
-class DataODBC implements \Tina4\DataBase
+class DataODBC implements DataBase
 {
     use DataBaseCore;
 
@@ -202,5 +202,14 @@ class DataODBC implements \Tina4\DataBase
     final public function isNoSQL(): bool
     {
         return false;
+    }
+
+    /**
+     * Get a short name for the database used for specific database migrations
+     * @return string
+     */
+    public function getShortName(): string
+    {
+        return "odbc";
     }
 }
