@@ -20,7 +20,7 @@ class DataODBC implements DataBase
      * @param string|null $password
      * @param string $dateFormat
      */
-    public function __construct(?string $database, ?string $username = "", ?string $password = "", string $dateFormat = "Y-m-d")
+    public function __construct(string $database, string $username = "", string $password = "", string $dateFormat = "Y-m-d", string $charset = "utf8", string $certificateFile = "")
     {
         global $cache;
 

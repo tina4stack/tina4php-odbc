@@ -22,6 +22,9 @@ class ODBCMetaData extends DataConnection implements DataBaseMetaData
         $data = odbc_tables($this->getDbh());
         $tables = [];
         while ($table = odbc_fetch_array($data)) {
+            if (isset($table["TABLE_TYPE"]) && $table["TABLE_TYPE"] !== "TABLE") {
+                continue;
+            }
             $tables[] = (object)["tableName" => $table["TABLE_NAME"]];
         }
 
@@ -54,7 +57,13 @@ class ODBCMetaData extends DataConnection implements DataBaseMetaData
      */
     final public function getTableInformation(string $tableName): array
     {
-        $fieldData = odbc_exec($this->getDbh(), "select * from `$tableName` where 1 = 2");
+        $fieldData = @odbc_exec($this->getDbh(), "select * from \"{$tableName}\" where 1 = 2");
+        if (!$fieldData) {
+            $fieldData = @odbc_exec($this->getDbh(), "select * from [{$tableName}] where 1 = 2");
+        }
+        if (!$fieldData) {
+            return [];
+        }
         $nCols = odbc_num_fields($fieldData);
         $fields = [];
         for ($n=1; $n <= $nCols; $n++) {

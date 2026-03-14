@@ -1,3 +1,5 @@
 /vendor/
 /.idea/
 /phpmetrics/
+.phpunit.cache
+.claude/

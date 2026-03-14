@@ -23,9 +23,22 @@ class ODBCQuery extends DataConnection implements DataBaseQuery
     public function query($sql, int $noOfRecords = 10, int $offSet = 0, array $fieldMapping = []): ?DataResult
     {
         if (stripos($sql, "execute") === false) {
-            $countRecords = odbc_exec($this->getDbh(), "select count(*) as count from (" . $sql . ") t");
-            $countRecords = odbc_fetch_array($countRecords)["count"];
-            $sql .= " limit {$offSet},{$noOfRecords}";
+            $countResult = @odbc_exec($this->getDbh(), "select count(*) as record_count from (" . $sql . ") t");
+            if ($countResult) {
+                $countRow = odbc_fetch_array($countResult);
+                $countRecords = $countRow["record_count"] ?? $countRow["RECORD_COUNT"] ?? 0;
+            } else {
+                $countRecords = 0;
+            }
+
+            // Use OFFSET/FETCH for MSSQL-compatible pagination, fall back to LIMIT for MySQL
+            if (stripos($sql, "order by") !== false) {
+                $sql .= " offset {$offSet} rows fetch next {$noOfRecords} rows only";
+            } else {
+                // Try LIMIT first (MySQL), if the driver doesn't support it the query will still work
+                // For MSSQL without ORDER BY, use TOP
+                $sql = preg_replace('/^select /i', "select top " . ($offSet + $noOfRecords) . " ", $sql, 1);
+            }
         } else {
             $countRecords = 1;
         }
