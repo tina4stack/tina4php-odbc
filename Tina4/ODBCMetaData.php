@@ -12,6 +12,7 @@ namespace Tina4;
  */
 class ODBCMetaData extends DataConnection implements DataBaseMetaData
 {
+    use DataBaseMetaDataHelper;
 
     /**
      * Gets a list of tables
@@ -99,20 +100,4 @@ class ODBCMetaData extends DataConnection implements DataBaseMetaData
         return $tableInformation;
     }
 
-    /**
-     * @return array
-     */
-    final public function getDatabaseMetaData(): array
-    {
-        $database = [];
-        $tables = $this->getTables();
-
-        foreach ($tables as $record) {
-            $tableInfo = $this->getTableInformation($record->tableName);
-
-            $database[strtolower($record->tableName)] = $tableInfo;
-        }
-
-        return $database;
-    }
 }
